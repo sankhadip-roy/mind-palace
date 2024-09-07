@@ -14,7 +14,7 @@ export default function Navbar() {
       <div className="w-full px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <span className="text-2xl font-bold">NoteGlass</span>
+            <span className="text-2xl font-bold">Notes</span>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-4">
             <Link href="https://github.com/Sankhadip-Roy/notes">

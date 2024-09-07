@@ -1,12 +1,97 @@
-"use client"
+"use client";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function Navbar() {
-    const session = useSession()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const session = useSession();
+
   return (
-    <div >
-        {session.data?.user && <button onClick={()=> signOut()}>SignOut</button>}
-        {!session.data?.user && <button onClick={()=> signIn()}>SignIn</button>}
-    </div>
+    <nav className="bg-black text-white">
+      <div className="w-full px-4">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-shrink-0">
+            <span className="text-2xl font-bold">NoteGlass</span>
+          </div>
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            <Link href="https://github.com/Sankhadip-Roy/notes">
+              <Button variant="ghost" className="text-white hover:bg-gray-700">
+                Repo
+              </Button>
+            </Link>
+
+            {session.data?.user && (
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-gray-700 "
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </Button>
+            )}
+            {!session.data?.user && (
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-gray-700"
+                onClick={() => signIn()}
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+          <div className="md:hidden">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-white hover:bg-gray-700"
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            <Link href="https://github.com/Sankhadip-Roy/notes">
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-gray-700 w-full text-left"
+              >
+                Notes
+              </Button>
+            </Link>
+
+            {session.data?.user && (
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-gray-700 w-full text-left"
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </Button>
+            )}
+            {!session.data?.user && (
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-gray-700 w-full text-left"
+                onClick={() => signIn()}
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
   );
 }

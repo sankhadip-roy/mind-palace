@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSession } from "next-auth/react";
 
 interface Note {
   id: number;
@@ -17,6 +18,10 @@ export default function Component() {
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const session = useSession();
+
+
+  console.log(session); //log
 
   const addNote = () => {
     if (newNoteTitle.trim() === "") return;

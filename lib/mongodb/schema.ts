@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 // Define the Note schema
 const NoteSchema = new mongoose.Schema({
+    // id: {
+    //     type: Number,
+    //     required: false,
+    //     // unique: true,
+    //     trim: true
+    // },
     title: {
         type: String,
         required: true,
@@ -9,7 +15,7 @@ const NoteSchema = new mongoose.Schema({
     },
     content: {
         type: String,
-        required: true
+        required: false
     },
     createdAt: {
         type: Date,

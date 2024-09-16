@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusCircle, FileText, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "next-auth/react";
 
 interface Note {
-  id: number;
+  _id: string;
   title: string;
   content: string;
 }
@@ -20,33 +20,60 @@ export default function Component() {
   const [searchTerm, setSearchTerm] = useState("");
   const session = useSession();
 
+  useEffect(() => {
+    if (session.status === "authenticated") {
+      fetchNotes();
+    }
+  }, [session.status]);
 
-  console.log(session); //log
+  const fetchNotes = async () => {
+    const response = await fetch('/api/notes');
+    if (response.ok) {
+      const data = await response.json();
+      setNotes(data.notes);
+    }
+  };
 
-  const addNote = () => {
+  const addNote = async () => {
     if (newNoteTitle.trim() === "") return;
-    const newNote = {
-      id: Date.now(),
-      title: newNoteTitle,
-      content: "",
-    };
-    setNotes([...notes, newNote]);
-    setActiveNote(newNote);
-    setNewNoteTitle("");
+    const response = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newNoteTitle, content: "" }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setNotes([...notes, data.note]);
+      setActiveNote(data.note);
+      setNewNoteTitle("");
+    }
+    else {
+      console.error('Failed to add note:', await response.json());
+    }
   };
 
-  const updateNote = (id: number, content: string) => {
-    const updatedNotes = notes.map((note) =>
-      note.id === id ? { ...note, content } : note
-    );
-    setNotes(updatedNotes);
-    setActiveNote(updatedNotes.find((note) => note.id === id) || null);
+  const updateNote = async (id: string, content: string) => {
+    const response = await fetch(`/api/notes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    if (response.ok) {
+      const updatedNotes = notes.map((note) =>
+        note._id === id ? { ...note, content } : note
+      );
+      setNotes(updatedNotes);
+      setActiveNote(updatedNotes.find((note) => note._id === id) || null);
+    }
   };
 
-  const deleteNote = (id: number) => {
-    const filteredNotes = notes.filter((note) => note.id !== id);
-    setNotes(filteredNotes);
-    setActiveNote(null);
+  const deleteNote = async (id: string) => {
+    const response = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      const filteredNotes = notes.filter((note) => note._id !== id);
+      setNotes(filteredNotes);
+      setActiveNote(null);
+    }
   };
 
   const filteredNotes = notes.filter(note =>
@@ -88,8 +115,8 @@ export default function Component() {
             <div className="space-y-2 pr-2">
               {filteredNotes.map((note) => (
                 <div
-                  key={note.id}
-                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?.id === note.id
+                  key={note._id}
+                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?._id === note._id
                     ? "bg-sky-700/40"
                     : "hover:bg-sky-700/20"
                     }`}
@@ -104,7 +131,7 @@ export default function Component() {
                     size="icon"
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteNote(note.id);
+                      deleteNote(note._id);
                     }}
                     className="text-gray-400 hover:text-gray-200 hover:bg-gray-600/30 rounded-full"
                   >
@@ -128,7 +155,7 @@ export default function Component() {
               className="flex-grow resize-none bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500 rounded-lg"
               placeholder="Start typing your note here..."
               value={activeNote.content}
-              onChange={(e) => updateNote(activeNote.id, e.target.value)}
+              onChange={(e) => updateNote(activeNote._id, e.target.value)}
             />
           </div>
         ) : (

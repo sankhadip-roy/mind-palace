@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { div } from "framer-motion/client";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,7 +26,6 @@ export default function Navbar() {
 
             {session.data?.user && (
               <div className="flex items-center space-x-2">
-
                 <Image
                   src={session.data?.user?.image || '/default-avatar.png'}
                   alt={`Avatar for ${session.data?.user?.name || 'user'}`}

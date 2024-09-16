@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { PlusCircle, FileText, Trash2, Search } from "lucide-react";
+import { FileText, Trash2, Search, GripVertical, FilePlus2 } from "lucide-react";
+import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,6 +81,11 @@ export default function Component() {
     note.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleReorder = (reorderedNotes: Note[]) => {
+    setNotes(reorderedNotes);
+    // Here you would typically update the order on the server
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
       {/* Sidebar */}
@@ -96,9 +102,9 @@ export default function Component() {
             <Button
               onClick={addNote}
               size="icon"
-              className="bg-sky-600 hover:bg-sky-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+              className="bg-sky-600 hover:bg-sky-700 text-white rounded-sm shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <PlusCircle className="h-5 w-5" />
+              <FilePlus2 className="h-5 w-5" />
             </Button>
           </div>
           <div className="relative">
@@ -112,34 +118,39 @@ export default function Component() {
             <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           </div>
           <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="space-y-2 pr-2">
-              {filteredNotes.map((note) => (
-                <div
-                  key={note._id}
-                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?._id === note._id
-                    ? "bg-sky-700/40"
-                    : "hover:bg-sky-700/20"
-                    }`}
-                  onClick={() => setActiveNote(note)}
-                >
-                  <div className="flex items-center">
-                    <FileText className="h-4 w-4 mr-2 text-gray-400" />
-                    <span className="truncate text-gray-200">{note.title}</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNote(note._id);
-                    }}
-                    className="text-gray-400 hover:text-gray-200 hover:bg-gray-600/30 rounded-full"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+            <Reorder.Group axis="y" onReorder={handleReorder} values={filteredNotes}>
+              <div className="space-y-2 pr-2">
+                {filteredNotes.map((note) => (
+                  <Reorder.Item key={note._id} value={note}>
+                    <motion.div
+                      layout
+                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?._id === note._id
+                        ? "bg-sky-700/40"
+                        : "hover:bg-sky-700/20"
+                        }`}
+                      onClick={() => setActiveNote(note)}
+                    >
+                      <div className="flex items-center flex-grow">
+                        <GripVertical className="h-4 w-4 mr-2 text-gray-400 cursor-move" />
+                        <FileText className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="truncate text-gray-200">{note.title}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNote(note._id);
+                        }}
+                        className="text-gray-400 hover:text-gray-200 hover:bg-gray-600/30 rounded-full ml-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                  </Reorder.Item>
+                ))}
+              </div>
+            </Reorder.Group>
           </ScrollArea>
         </div>
       </div>
@@ -151,12 +162,14 @@ export default function Component() {
             <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-300">
               {activeNote.title}
             </h2>
-            <Textarea
-              className="flex-grow resize-none bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500 rounded-lg"
-              placeholder="Start typing your note here..."
-              value={activeNote.content}
-              onChange={(e) => updateNote(activeNote._id, e.target.value)}
-            />
+            <div className="flex flex-col h-5/6">
+              <Textarea
+                className="h-1/5 flex-grow resize-none bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500 rounded-lg"
+                placeholder="Start typing your note here..."
+                value={activeNote.content}
+                onChange={(e) => updateNote(activeNote._id, e.target.value)}
+              />
+            </div>
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">

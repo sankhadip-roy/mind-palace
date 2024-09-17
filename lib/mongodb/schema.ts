@@ -17,6 +17,10 @@ const NoteSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    order: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

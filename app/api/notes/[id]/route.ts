@@ -4,7 +4,7 @@ import { User } from '@/lib/mongodb/schema';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
     try {
         await connectDB();
         const session = await getServerSession(authOptions);
@@ -45,7 +45,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
     try {
         await connectDB();
         const session = await getServerSession(authOptions);

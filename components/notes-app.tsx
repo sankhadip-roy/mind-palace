@@ -12,6 +12,7 @@ interface Note {
   _id: string;
   title: string;
   content: string;
+  order: number;
 }
 
 export default function Component() {
@@ -81,9 +82,14 @@ export default function Component() {
     note.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleReorder = (reorderedNotes: Note[]) => {
-    setNotes(reorderedNotes);
-    // Here you would typically update the order on the server
+  const handleReorder = async (reorderedNotes: Note[]) => {
+    const updatedNotes = reorderedNotes.map((note, index) => ({ ...note, order: index }));
+    setNotes(updatedNotes);
+    await fetch('/api/notes/reorder', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: updatedNotes.map(note => ({ id: note._id, order: note.order })) }),
+    });
   };
 
   return (

@@ -1,7 +1,8 @@
 "use client";
+
 import { useState, useEffect, useCallback } from "react";
 import debounce from 'lodash/debounce';
-import { FileText, Trash2, Search, GripVertical, FilePlus2 } from "lucide-react";
+import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +24,9 @@ export default function Component() {
   const [searchTerm, setSearchTerm] = useState("");
   const session = useSession();
   const [localNoteContent, setLocalNoteContent] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  console.log(session); //log
+  // console.log(session); //log
 
   useEffect(() => {
     if (session.status === "authenticated") {
@@ -52,13 +54,13 @@ export default function Component() {
       setNotes([...notes, data.note]);
       setActiveNote(data.note);
       setNewNoteTitle("");
+      setIsSidebarOpen(false);
     }
     else {
       console.error('Failed to add note:', await response.json());
     }
   };
 
-  // Debounced update function
   const debouncedUpdateNote = useCallback(
     debounce(async (id: string, content: string) => {
       try {
@@ -70,16 +72,13 @@ export default function Component() {
         if (!response.ok) {
           throw new Error('Failed to update note');
         }
-        // Optionally update state with server response if needed
       } catch (error) {
         console.error('Error updating note:', error);
-        // Handle error (e.g., show a notification to the user)
       }
     }, 1000),
     []
   );
 
-  // Update local state immediately and queue server update
   const handleNoteChange = (content: string) => {
     if (activeNote) {
       setLocalNoteContent(content);
@@ -90,7 +89,6 @@ export default function Component() {
     }
   };
 
-  // Update localNoteContent when activeNote changes
   useEffect(() => {
     if (activeNote) {
       setLocalNoteContent(activeNote.content);
@@ -120,10 +118,21 @@ export default function Component() {
     });
   };
 
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
+      {/* Mobile Header */}
+      <div className="md:hidden flex justify-between items-center p-4 bg-black/20 border-b border-white/10">
+        <Button onClick={toggleSidebar} variant="ghost" size="icon">
+          <Menu className="h-6 w-6" />
+        </Button>
+        <h1 className="text-xl font-bold">Notes</h1>
+        <div className="w-6"></div> {/* Placeholder for balance */}
+      </div>
+
       {/* Sidebar */}
-      <div className="w-80 bg-black/20 border-r border-white/10">
+      <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-full md:w-80 bg-black/20 border-r border-white/10 overflow-hidden transition-all duration-300 ease-in-out`}>
         <div className="p-6 space-y-6">
           <div className="flex items-center space-x-2">
             <Input
@@ -151,7 +160,7 @@ export default function Component() {
             />
             <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           </div>
-          <ScrollArea className="h-[calc(100vh-200px)]">
+          <ScrollArea className="h-[calc(100vh-200px)] md:h-[calc(100vh-180px)]">
             <Reorder.Group axis="y" onReorder={handleReorder} values={filteredNotes}>
               <div className="space-y-2 pr-2">
                 {filteredNotes.map((note) => (
@@ -162,7 +171,10 @@ export default function Component() {
                         ? "bg-sky-700/40"
                         : "hover:bg-sky-700/20"
                         }`}
-                      onClick={() => setActiveNote(note)}
+                      onClick={() => {
+                        setActiveNote(note);
+                        setIsSidebarOpen(false);
+                      }}
                     >
                       <div className="flex items-center flex-grow">
                         <GripVertical className="h-4 w-4 mr-2 text-gray-400 cursor-move" />
@@ -190,15 +202,15 @@ export default function Component() {
       </div>
 
       {/* Main content */}
-      <div className="flex-grow p-8 bg-black/10">
+      <div className="flex-grow p-4 md:p-8 bg-black/10 overflow-auto">
         {activeNote && (
           <div className="h-full flex flex-col">
-            <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-300">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-300">
               {activeNote.title}
             </h2>
-            <div className="flex flex-col h-5/6">
+            <div className="flex flex-col h-full">
               <Textarea
-                className="h-1/5 flex-grow resize-none bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500 rounded-lg"
+                className="h-full resize-none bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500 rounded-lg"
                 placeholder="Start typing your note here..."
                 value={localNoteContent}
                 onChange={(e) => handleNoteChange(e.target.value)}
@@ -208,7 +220,7 @@ export default function Component() {
         ) || (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
               <FileText className="h-16 w-16 text-sky-400" />
-              <p className="text-xl">Select a note or create a new one to get started</p>
+              <p className="text-xl text-center">Select a note or create a new one to get started</p>
             </div>
           )}
       </div>

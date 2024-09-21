@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
         },
     },
 
-    debug: true, // log
+    // debug: true, // log
 
     callbacks: {
         redirect({ url, baseUrl }) {

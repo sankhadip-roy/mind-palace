@@ -11,5 +11,21 @@ export const authOptions: NextAuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET ?? "",
 
+    session: {
+        strategy: "jwt", // JWT is the default, but you can explicitly declare it
+    },
+    cookies: {
+        sessionToken: {
+            name: `__Secure-next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: process.env.NODE_ENV === "production",  // Set to true in production
+            },
+        },
+    },
+
     debug: true, // log
+
 };

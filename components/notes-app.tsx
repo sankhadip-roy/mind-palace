@@ -22,6 +22,8 @@ export default function Component() {
   const [searchTerm, setSearchTerm] = useState("");
   const session = useSession();
 
+  console.log(session); //log
+
   useEffect(() => {
     if (session.status === "authenticated") {
       fetchNotes();

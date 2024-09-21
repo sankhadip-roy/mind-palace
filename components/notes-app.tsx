@@ -127,7 +127,7 @@ export default function Component() {
         <Button onClick={toggleSidebar} variant="ghost" size="icon">
           <Menu className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-bold">Notes</h1>
+        <h1 className="text-xl font-bold">all notes</h1>
         <div className="w-6"></div> {/* Placeholder for balance */}
       </div>
 

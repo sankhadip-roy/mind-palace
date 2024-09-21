@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import debounce from 'lodash/debounce';
 import { FileText, Trash2, Search, GripVertical, FilePlus2 } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export default function Component() {
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const session = useSession();
+  const [localNoteContent, setLocalNoteContent] = useState("");
 
   console.log(session); //log
 
@@ -56,20 +58,44 @@ export default function Component() {
     }
   };
 
-  const updateNote = async (id: string, content: string) => {
-    const response = await fetch(`/api/notes/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    if (response.ok) {
-      const updatedNotes = notes.map((note) =>
-        note._id === id ? { ...note, content } : note
-      );
-      setNotes(updatedNotes);
-      setActiveNote(updatedNotes.find((note) => note._id === id) || null);
+  // Debounced update function
+  const debouncedUpdateNote = useCallback(
+    debounce(async (id: string, content: string) => {
+      try {
+        const response = await fetch(`/api/notes/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update note');
+        }
+        // Optionally update state with server response if needed
+      } catch (error) {
+        console.error('Error updating note:', error);
+        // Handle error (e.g., show a notification to the user)
+      }
+    }, 1000),
+    []
+  );
+
+  // Update local state immediately and queue server update
+  const handleNoteChange = (content: string) => {
+    if (activeNote) {
+      setLocalNoteContent(content);
+      setNotes(prevNotes => prevNotes.map(note =>
+        note._id === activeNote._id ? { ...note, content } : note
+      ));
+      debouncedUpdateNote(activeNote._id, content);
     }
   };
+
+  // Update localNoteContent when activeNote changes
+  useEffect(() => {
+    if (activeNote) {
+      setLocalNoteContent(activeNote.content);
+    }
+  }, [activeNote]);
 
   const deleteNote = async (id: string) => {
     const response = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
@@ -165,7 +191,7 @@ export default function Component() {
 
       {/* Main content */}
       <div className="flex-grow p-8 bg-black/10">
-        {activeNote ? (
+        {activeNote && (
           <div className="h-full flex flex-col">
             <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-300">
               {activeNote.title}
@@ -174,17 +200,17 @@ export default function Component() {
               <Textarea
                 className="h-1/5 flex-grow resize-none bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500 rounded-lg"
                 placeholder="Start typing your note here..."
-                value={activeNote.content}
-                onChange={(e) => updateNote(activeNote._id, e.target.value)}
+                value={localNoteContent}
+                onChange={(e) => handleNoteChange(e.target.value)}
               />
             </div>
           </div>
-        ) : (
-          <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-            <FileText className="h-16 w-16 text-sky-400" />
-            <p className="text-xl">Select a note or create a new one to get started</p>
-          </div>
-        )}
+        ) || (
+            <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
+              <FileText className="h-16 w-16 text-sky-400" />
+              <p className="text-xl">Select a note or create a new one to get started</p>
+            </div>
+          )}
       </div>
     </div>
   );

@@ -40,5 +40,8 @@ const UserSchema = new mongoose.Schema({
     notes: [NoteSchema]
 });
 
+// Remove any existing indexes on notes.id
+UserSchema.index({ 'notes.id': 1 }, { unique: false, sparse: true });
+
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export const Note = mongoose.models.Note || mongoose.model('Note', NoteSchema);

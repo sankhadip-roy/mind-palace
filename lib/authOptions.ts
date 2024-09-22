@@ -11,6 +11,7 @@ export const authOptions: NextAuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
 
+    // only for production environment
     session: {
         strategy: "jwt", // JWT is the default, but you can explicitly declare it
     },

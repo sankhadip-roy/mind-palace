@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb/dbConnect';
 import { User } from '@/lib/mongodb/schema';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
+import mongoose from 'mongoose';
 
 export async function POST(req: Request) {
     try {
@@ -19,20 +20,21 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Title is required' }, { status: 400 });
         }
 
-        const user = await User.findOne({ username: session.user.name });
+        let user = await User.findOne({ username: session.user.name });
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            user = new User({ username: session.user.name, notes: [] });
         }
 
-        const newOrder = user.notes.length;
+        const newNote = {
+            _id: new mongoose.Types.ObjectId(),
+            title,
+            content: content || '',
+            order: user.notes.length
+        };
 
-        const updatedUser = await User.findOneAndUpdate(
-            { username: session.user.name },
-            { $push: { notes: { title, content, order: newOrder } } },
-            { new: true }
-        );
+        user.notes.push(newNote);
+        await user.save();
 
-        const newNote = updatedUser.notes[updatedUser.notes.length - 1];
         return NextResponse.json({ success: true, note: newNote });
     } catch (error) {
         console.error('Error creating note:', error);

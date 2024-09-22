@@ -11,7 +11,7 @@ export default function Navbar() {
   const session = useSession();
 
   return (
-    <nav className="bg-black text-white">
+    <nav className="fixed top-0 left-0 right-0 bg-black text-white z-50">
       <div className="w-full px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">

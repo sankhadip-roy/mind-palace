@@ -1,13 +1,12 @@
 import mongoose from 'mongoose';
 
-// Define the Note schema
 const NoteSchema = new mongoose.Schema({
-    // id: {
-    //     type: Number,
-    //     required: false,
-    //     // unique: true,
-    //     trim: true
-    // },
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(),
+        auto: true
+    },
+
     title: {
         type: String,
         required: true,
@@ -31,7 +30,6 @@ const NoteSchema = new mongoose.Schema({
     }
 });
 
-// Define the User schema
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -42,6 +40,5 @@ const UserSchema = new mongoose.Schema({
     notes: [NoteSchema]
 });
 
-// Create models
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export const Note = mongoose.models.Note || mongoose.model('Note', NoteSchema);

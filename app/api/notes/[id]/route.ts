@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb/dbConnect';
 import { User } from '@/lib/mongodb/schema';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
+import mongoose from 'mongoose';
 
 export async function GET(_req: Request) {
     try {
@@ -54,12 +55,19 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await User.findOneAndUpdate(
+        const noteId = new mongoose.Types.ObjectId(params.id);
+
+        const result = await User.findOneAndUpdate(
             { username: session.user.name },
-            { $pull: { notes: { _id: params.id } } }
+            { $pull: { notes: { _id: noteId } } },
+            { new: true }
         );
 
-        return NextResponse.json({ success: true });
+        if (!result) {
+            return NextResponse.json({ error: 'Note not found' }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: 'Note deleted successfully' });
     } catch (error) {
         console.error('Error deleting note:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

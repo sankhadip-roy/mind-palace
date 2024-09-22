@@ -1,12 +1,6 @@
 import mongoose from 'mongoose';
 
 const NoteSchema = new mongoose.Schema({
-    _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: () => new mongoose.Types.ObjectId(),
-        auto: true
-    },
-
     title: {
         type: String,
         required: true,
@@ -28,7 +22,7 @@ const NoteSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
+}, { _id: true }); // This ensures MongoDB generates the _id
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -40,8 +34,8 @@ const UserSchema = new mongoose.Schema({
     notes: [NoteSchema]
 });
 
-// Remove any existing indexes on notes.id
-UserSchema.index({ 'notes.id': 1 }, { unique: false, sparse: true });
+// Remove any existing indexes
+UserSchema.index({ 'notes._id': 1 }, { unique: false, sparse: true });
 
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export const Note = mongoose.models.Note || mongoose.model('Note', NoteSchema);

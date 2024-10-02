@@ -17,7 +17,7 @@ interface Note {
   order: number;
 }
 
-export default function Component() {
+export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [newNoteTitle, setNewNoteTitle] = useState("");
@@ -120,6 +120,13 @@ export default function Component() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  const handleNewNoteTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addNote();
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
       {/* Mobile Header */}
@@ -140,6 +147,7 @@ export default function Component() {
               placeholder="New note title"
               value={newNoteTitle}
               onChange={(e) => setNewNoteTitle(e.target.value)}
+              onKeyDown={handleNewNoteTitleKeyDown}
               className="flex-grow bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500"
             />
             <Button

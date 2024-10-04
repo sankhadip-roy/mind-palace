@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import debounce from 'lodash/debounce';
-import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X } from "lucide-react";
+import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X, LogIn } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 interface Note {
   _id: string;
@@ -192,23 +192,35 @@ export default function Notes() {
           <div className="flex items-center space-x-2">
             <Input
               type="text"
-              placeholder="New note title"
+              placeholder={session.status === "authenticated" ? "New note title" : "Log in to add note"}
+              disabled={session.status !== "authenticated"}
               value={newNoteTitle}
               onChange={(e) => setNewNoteTitle(e.target.value)}
               onKeyDown={handleNewNoteTitleKeyDown}
               className="flex-grow bg-white/10 border-white/20 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-sky-500"
             />
-            <Button
-              onClick={addNote}
+
+            {session.status === "authenticated" ? (
+              <Button
+                onClick={addNote}
+                size="icon"
+                className="bg-sky-600 hover:bg-sky-700 text-white rounded-sm shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <FilePlus2 className="h-5 w-5" />
+              </Button>
+            ) : (<Button
+              onClick={() => signIn()}
               size="icon"
               className="bg-sky-600 hover:bg-sky-700 text-white rounded-sm shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <FilePlus2 className="h-5 w-5" />
-            </Button>
+              <LogIn className="h-5 w-5" />
+            </Button>)}
+
           </div>
           <div className="relative">
             <Input
               type="text"
+              disabled={session.status !== "authenticated"}
               placeholder="Search notes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

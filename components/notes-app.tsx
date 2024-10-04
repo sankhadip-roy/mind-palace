@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import debounce from 'lodash/debounce';
-import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu } from "lucide-react";
+import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ interface Note {
   title: string;
   content: string;
   order: number;
+  isEditing: boolean;
 }
 
 export default function Notes() {
@@ -25,6 +26,7 @@ export default function Notes() {
   const session = useSession();
   const [localNoteContent, setLocalNoteContent] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [editedTitle, setEditedTitle] = useState("");
 
   // console.log(session); //log
 
@@ -34,11 +36,49 @@ export default function Notes() {
     }
   }, [session.status]);
 
+
+  const startEditing = (noteId: string) => {
+    const noteToEdit = notes.find(n => n._id === noteId);
+    if (noteToEdit) {
+      setNotes(prevNotes => prevNotes.map(n =>
+        n._id === noteId ? { ...n, isEditing: true } : { ...n, isEditing: false }
+      ));
+      setEditedTitle(noteToEdit.title);
+    }
+  };
+
+  const saveEditedTitle = async (noteId: string) => {
+    if (editedTitle.trim() === "") return;
+
+    try {
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editedTitle }),
+      });
+
+      if (response.ok) {
+        const updatedNote = await response.json();
+        setNotes(prevNotes => prevNotes.map(n =>
+          n._id === noteId ? { ...updatedNote.note, isEditing: false } : n
+        ));
+        if (activeNote && activeNote._id === noteId) {
+          setActiveNote(prevNote => prevNote ? { ...prevNote, title: editedTitle } : null);
+        }
+        setEditedTitle("");
+      } else {
+        console.error('Failed to update note title:', await response.json());
+      }
+    } catch (error) {
+      console.error('Error updating note title:', error);
+    }
+  };
+
   const fetchNotes = async () => {
     const response = await fetch('/api/notes');
     if (response.ok) {
       const data = await response.json();
-      setNotes(data.notes);
+      setNotes(data.notes.map((note: Note) => ({ ...note, isEditing: false })));
     }
   };
 
@@ -92,6 +132,7 @@ export default function Notes() {
   useEffect(() => {
     if (activeNote) {
       setLocalNoteContent(activeNote.content);
+      setEditedTitle(activeNote.title);
     }
   }, [activeNote]);
 
@@ -125,6 +166,13 @@ export default function Notes() {
       e.preventDefault();
       addNote();
     }
+  };
+
+  const cancelEditing = (noteId: string) => {
+    setNotes(prevNotes => prevNotes.map(n =>
+      n._id === noteId ? { ...n, isEditing: false } : n
+    ));
+    setEditedTitle("");
   };
 
   return (
@@ -175,19 +223,67 @@ export default function Notes() {
                   <Reorder.Item key={note._id} value={note}>
                     <motion.div
                       layout
-                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?._id === note._id
-                        ? "bg-sky-700/40"
-                        : "hover:bg-sky-700/20"
+                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?._id === note._id ? "bg-sky-700/40" : "hover:bg-sky-700/20"
                         }`}
                       onClick={() => {
-                        setActiveNote(note);
-                        setIsSidebarOpen(false);
+                        if (!note.isEditing) {
+                          setActiveNote(note);
+                          setIsSidebarOpen(false);
+                        }
                       }}
                     >
                       <div className="flex items-center flex-grow">
-                        <GripVertical className="h-4 w-4 mr-2 text-gray-400 cursor-move" />
-                        <FileText className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="truncate text-gray-200">{note.title}</span>
+                        <GripVertical className="h-5 w-5 mr-2 text-gray-400 cursor-move" />
+                        <FileText className="h-5 w-5 mr-2 text-gray-400" />
+                        {!note.isEditing ? (
+                          <div className="flex items-center group w-full">
+                            <span className="truncate text-gray-200 flex-grow">
+                              {note.title}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditing(note._id);
+                              }}
+                              className="text-gray-400 hover:text-gray-200 hover:bg-gray-600/30 rounded-full ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center w-full">
+                            <Input
+                              value={editedTitle}
+                              onChange={(e) => setEditedTitle(e.target.value)}
+                              className="flex-grow bg-transparent border-none focus:ring-0"
+                              autoFocus
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                saveEditedTitle(note._id);
+                              }}
+                              className="text-green-500 hover:text-green-400 hover:bg-gray-600/30 rounded-full ml-1"
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                cancelEditing(note._id);
+                              }}
+                              className="text-red-500 hover:text-red-400 hover:bg-gray-600/30 rounded-full ml-1"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       <Button
                         variant="ghost"

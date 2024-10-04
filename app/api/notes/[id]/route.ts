@@ -31,10 +31,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { content } = await req.json();
+        const { content, title } = await req.json();
+        const updateData: { content?: string; title?: string } = {};
+        if (content !== undefined) updateData.content = content;
+        if (title !== undefined) updateData.title = title;
+
         const user = await User.findOneAndUpdate(
             { username: session.user.name, 'notes._id': params.id },
-            { $set: { 'notes.$.content': content } },
+            { $set: { 'notes.$.title': title, 'notes.$.content': content } },
             { new: true }
         );
 

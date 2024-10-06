@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import debounce from 'lodash/debounce';
-import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X, LogIn } from "lucide-react";
+import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X, LogIn, Link } from "lucide-react";
+import { IconBrandGoogle } from "@tabler/icons-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -334,11 +335,17 @@ export default function Notes() {
             </div>
           </div>
         ) || (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-              <FileText className="h-16 w-16 text-sky-400" />
-              <p className="text-xl text-center">Select a note or create a new one to get started</p>
-            </div>
-          )}
+            session.status === "authenticated" ? (
+              <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
+                <FileText className="h-16 w-16 text-sky-400" />
+                <p className="text-xl text-center">Select a note or create a new one to get started</p>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 cursor-pointer" onClick={() => signIn('google')}>
+                <IconBrandGoogle className="h-16 w-16 text-sky-400" />
+                <p className="text-xl text-center">Sign in using google to get started</p>
+              </div>
+            ))}
       </div>
     </div>
   );

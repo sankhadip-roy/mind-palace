@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { IconBrandGithub } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -14,12 +15,14 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 bg-black text-white z-50">
       <div className="w-full px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0">
+          <div className="flex flex-shrink-0">
+            <Image src="/notes-logo.png" alt="Google Logo" width={30} height={30} className="mx-2" />
             <span className="text-2xl font-bold">Notes</span>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link href="https://github.com/Sankhadip-Roy/notes">
+            <Link href="https://github.com/sankhadip-roy/notes">
               <Button variant="ghost" className="text-white hover:bg-gray-700">
+                <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300 mr-2" />
                 Repo
               </Button>
             </Link>
@@ -27,7 +30,7 @@ export default function Navbar() {
             {session.data?.user && (
               <div className="flex items-center space-x-2">
                 <Image
-                  src={session.data?.user?.image || '/default-avatar.png'}
+                  src={session.data?.user?.image || '/default-avatar.png'} // default avatar not added
                   alt={`Avatar for ${session.data?.user?.name || 'user'}`}
                   width={40}
                   height={40}
@@ -46,8 +49,9 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 className="text-white hover:bg-gray-700"
-                onClick={() => signIn()}
+                onClick={() => signIn('google')}
               >
+                <Image src="/google.svg" alt="Google Logo" width={16} height={16} className=" mr-2" />
                 Sign In
               </Button>
             )}

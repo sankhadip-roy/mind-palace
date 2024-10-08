@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import debounce from 'lodash/debounce';
-import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X, LogIn, Link } from "lucide-react";
+import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X, LogIn } from "lucide-react";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -210,7 +210,7 @@ export default function Notes() {
                 <FilePlus2 className="h-5 w-5" />
               </Button>
             ) : (<Button
-              onClick={() => signIn()}
+              onClick={() => signIn('google')}
               size="icon"
               className="bg-sky-600 hover:bg-sky-700 text-white rounded-sm shadow-lg hover:shadow-xl transition-all duration-200"
             >

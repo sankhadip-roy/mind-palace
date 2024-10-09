@@ -16,11 +16,11 @@ export default function Navbar() {
       <div className="w-full px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex flex-shrink-0">
-            <Image src="/notes-logo.png" alt="Google Logo" width={30} height={30} className="mx-2" />
-            <span className="text-2xl font-bold">Notes</span>
+            <Image src="/mind-palace.jpg" alt="Google Logo" width={50} height={50} className="mx-2" />
+            <span className="text-2xl font-bold">mind-palace</span>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link href="https://github.com/sankhadip-roy/notes">
+            <Link href="https://github.com/sankhadip-roy/mind-palace">
               <Button variant="ghost" className="text-white hover:bg-gray-700">
                 <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300 mr-2" />
                 Repo
@@ -76,12 +76,12 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <Link href="https://github.com/Sankhadip-Roy/notes">
+            <Link href="https://github.com/sankhadip-roy/mind-palace">
               <Button
                 variant="ghost"
                 className="text-white hover:bg-gray-700 w-full text-left"
               >
-                Notes
+                mind-palace
               </Button>
             </Link>
 

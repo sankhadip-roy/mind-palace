@@ -1,4 +1,6 @@
-### Application for storing personal notes
+### Application for taking notes
+
+"mind-palace": This note-taking app serves as a database to store random thoughts, ideas, and information, ensuring nothing is forgotten. The name is inspired by Sherlock Holmes' memory palace technique.
 
 **Interested in contributing to this repository, here Contributing 101**
 

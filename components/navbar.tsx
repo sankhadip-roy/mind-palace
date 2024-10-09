@@ -16,7 +16,13 @@ export default function Navbar() {
       <div className="w-full px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex flex-shrink-0">
-            <Image src="/mind-palace.jpg" alt="Google Logo" width={50} height={50} className="mx-2" />
+            <Image
+              src="/mind-palace.jpg"
+              alt="Google Logo"
+              width={50}
+              height={50}
+              className="mx-2"
+            />
             <span className="text-2xl font-bold">mind-palace</span>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-4">
@@ -30,8 +36,8 @@ export default function Navbar() {
             {session.data?.user && (
               <div className="flex items-center space-x-2">
                 <Image
-                  src={session.data?.user?.image || '/default-avatar.png'} // default avatar not added
-                  alt={`Avatar for ${session.data?.user?.name || 'user'}`}
+                  src={session.data?.user?.image || "/default-avatar.png"} // default avatar not added
+                  alt={`Avatar for ${session.data?.user?.name || "user"}`}
                   width={40}
                   height={40}
                   className="rounded-full"
@@ -49,9 +55,15 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 className="text-white hover:bg-gray-700"
-                onClick={() => signIn('google')}
+                onClick={() => signIn("google")}
               >
-                <Image src="/google.svg" alt="Google Logo" width={16} height={16} className=" mr-2" />
+                <Image
+                  src="/google.svg"
+                  alt="Google Logo"
+                  width={16}
+                  height={16}
+                  className=" mr-2"
+                />
                 Sign In
               </Button>
             )}
@@ -81,25 +93,42 @@ export default function Navbar() {
                 variant="ghost"
                 className="text-white hover:bg-gray-700 w-full text-left"
               >
-                mind-palace
+                <IconBrandGithub className="h-full text-neutral-500 dark:text-neutral-300 mr-1" />
+                Repo
               </Button>
             </Link>
 
             {session.data?.user && (
-              <Button
-                variant="ghost"
-                className="text-white hover:bg-gray-700 w-full text-left"
-                onClick={() => signOut()}
-              >
-                Sign Out
-              </Button>
+              <div className="flex items-center justify-center space-x-1">
+                <Image
+                  src={session.data?.user?.image || "/default-avatar.png"} // default avatar not added
+                  alt={`Avatar for ${session.data?.user?.name || "user"}`}
+                  width={16}
+                  height={16}
+                  className="rounded-full"
+                />
+                <Button
+                  variant="ghost"
+                  className="text-white hover:bg-gray-700"
+                  onClick={() => signOut()}
+                >
+                  Sign Out
+                </Button>
+              </div>
             )}
             {!session.data?.user && (
               <Button
                 variant="ghost"
                 className="text-white hover:bg-gray-700 w-full text-left"
-                onClick={() => signIn()}
+                onClick={() => signIn("google")}
               >
+                <Image
+                  src="/google.svg"
+                  alt="Google Logo"
+                  width={16}
+                  height={16}
+                  className=" mr-2"
+                />
                 Sign In
               </Button>
             )}

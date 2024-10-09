@@ -1,10 +1,15 @@
 ### Application for storing notes
 
 <div style="display: flex; align-items: center;">
-  <img src="https://github.com/user-attachments/assets/334d6efe-1ea6-4406-a37b-738a54d67f3c" alt="mind-palace" width="200" style="margin-right: 20px;">
-  <p>"mind-palace": This note-storing app serves as a database to store random thoughts, ideas, and information, ensuring nothing is forgotten and can be looked up in constant time. The name is inspired by Sherlock Holmes' mind palace technique.</p>
+    <div>
+        <img src="https://github.com/user-attachments/assets/334d6efe-1ea6-4406-a37b-738a54d67f3c" alt="mind-palace" width="200" style="margin-right: 20px;">
+    </div>
+    <div>
+       <p>"mind-palace": This note-storing app serves as a database to store random thoughts, ideas, and information, ensuring nothing is forgotten and can be looked up in constant time. The name is inspired by Sherlock Holmes' mind palace technique.</p>
+  </div>
 </div>
 <br>
+
 **Interested in contributing to this repository, here Contributing 101**
 
 > To run properly locally

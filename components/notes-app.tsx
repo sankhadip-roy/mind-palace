@@ -296,8 +296,8 @@ export default function Notes() {
                         {!note.isEditing ? (
                           <div className="flex items-center group w-full">
                             <span className="truncate text-gray-200 flex-grow">
-                              {note.title.slice(0, 12)}
-                              {note.title.length > 12 ? "..." : ""}
+                              {note.title.slice(0, 10)}
+                              {note.title.length > 10 ? "..." : ""}
                             </span>
                             <Button
                               variant="ghost"

@@ -1,8 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import debounce from 'lodash/debounce';
-import { FileText, Trash2, Search, GripVertical, FilePlus2, Menu, Pencil, Check, X, LogIn } from "lucide-react";
+import debounce from "lodash/debounce";
+import {
+  FileText,
+  Trash2,
+  Search,
+  GripVertical,
+  FilePlus2,
+  Menu,
+  Pencil,
+  Check,
+  X,
+  LogIn,
+} from "lucide-react";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -37,13 +48,16 @@ export default function Notes() {
     }
   }, [session.status]);
 
-
   const startEditing = (noteId: string) => {
-    const noteToEdit = notes.find(n => n._id === noteId);
+    const noteToEdit = notes.find((n) => n._id === noteId);
     if (noteToEdit) {
-      setNotes(prevNotes => prevNotes.map(n =>
-        n._id === noteId ? { ...n, isEditing: true } : { ...n, isEditing: false }
-      ));
+      setNotes((prevNotes) =>
+        prevNotes.map((n) =>
+          n._id === noteId
+            ? { ...n, isEditing: true }
+            : { ...n, isEditing: false }
+        )
+      );
       setEditedTitle(noteToEdit.title);
     }
   };
@@ -53,30 +67,34 @@ export default function Notes() {
 
     try {
       const response = await fetch(`/api/notes/${noteId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: editedTitle }),
       });
 
       if (response.ok) {
         const updatedNote = await response.json();
-        setNotes(prevNotes => prevNotes.map(n =>
-          n._id === noteId ? { ...updatedNote.note, isEditing: false } : n
-        ));
+        setNotes((prevNotes) =>
+          prevNotes.map((n) =>
+            n._id === noteId ? { ...updatedNote.note, isEditing: false } : n
+          )
+        );
         if (activeNote && activeNote._id === noteId) {
-          setActiveNote(prevNote => prevNote ? { ...prevNote, title: editedTitle } : null);
+          setActiveNote((prevNote) =>
+            prevNote ? { ...prevNote, title: editedTitle } : null
+          );
         }
         setEditedTitle("");
       } else {
-        console.error('Failed to update note title:', await response.json());
+        console.error("Failed to update note title:", await response.json());
       }
     } catch (error) {
-      console.error('Error updating note title:', error);
+      console.error("Error updating note title:", error);
     }
   };
 
   const fetchNotes = async () => {
-    const response = await fetch('/api/notes');
+    const response = await fetch("/api/notes");
     if (response.ok) {
       const data = await response.json();
       setNotes(data.notes.map((note: Note) => ({ ...note, isEditing: false })));
@@ -85,9 +103,9 @@ export default function Notes() {
 
   const addNote = async () => {
     if (newNoteTitle.trim() === "") return;
-    const response = await fetch('/api/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: newNoteTitle, content: "" }),
     });
     if (response.ok) {
@@ -96,9 +114,8 @@ export default function Notes() {
       setActiveNote(data.note);
       setNewNoteTitle("");
       setIsSidebarOpen(false);
-    }
-    else {
-      console.error('Failed to add note:', await response.json());
+    } else {
+      console.error("Failed to add note:", await response.json());
     }
   };
 
@@ -106,15 +123,15 @@ export default function Notes() {
     debounce(async (id: string, content: string) => {
       try {
         const response = await fetch(`/api/notes/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content }),
         });
         if (!response.ok) {
-          throw new Error('Failed to update note');
+          throw new Error("Failed to update note");
         }
       } catch (error) {
-        console.error('Error updating note:', error);
+        console.error("Error updating note:", error);
       }
     }, 1000),
     []
@@ -123,9 +140,11 @@ export default function Notes() {
   const handleNoteChange = (content: string) => {
     if (activeNote) {
       setLocalNoteContent(content);
-      setNotes(prevNotes => prevNotes.map(note =>
-        note._id === activeNote._id ? { ...note, content } : note
-      ));
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note._id === activeNote._id ? { ...note, content } : note
+        )
+      );
       debouncedUpdateNote(activeNote._id, content);
     }
   };
@@ -138,7 +157,7 @@ export default function Notes() {
   }, [activeNote]);
 
   const deleteNote = async (id: string) => {
-    const response = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/api/notes/${id}`, { method: "DELETE" });
     if (response.ok) {
       const filteredNotes = notes.filter((note) => note._id !== id);
       setNotes(filteredNotes);
@@ -146,33 +165,43 @@ export default function Notes() {
     }
   };
 
-  const filteredNotes = notes.filter(note =>
+  const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleReorder = async (reorderedNotes: Note[]) => {
-    const updatedNotes = reorderedNotes.map((note, index) => ({ ...note, order: index }));
+    const updatedNotes = reorderedNotes.map((note, index) => ({
+      ...note,
+      order: index,
+    }));
     setNotes(updatedNotes);
-    await fetch('/api/notes/reorder', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes: updatedNotes.map(note => ({ id: note._id, order: note.order })) }),
+    await fetch("/api/notes/reorder", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: updatedNotes.map((note) => ({
+          id: note._id,
+          order: note.order,
+        })),
+      }),
     });
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const handleNewNoteTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleNewNoteTitleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       addNote();
     }
   };
 
   const cancelEditing = (noteId: string) => {
-    setNotes(prevNotes => prevNotes.map(n =>
-      n._id === noteId ? { ...n, isEditing: false } : n
-    ));
+    setNotes((prevNotes) =>
+      prevNotes.map((n) => (n._id === noteId ? { ...n, isEditing: false } : n))
+    );
     setEditedTitle("");
   };
 
@@ -188,12 +217,20 @@ export default function Notes() {
       </div>
 
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-full md:w-80 bg-black/20 border-r border-white/10 overflow-hidden transition-all duration-300 ease-in-out`}>
+      <div
+        className={`${
+          isSidebarOpen ? "block" : "hidden"
+        } md:block w-full md:w-80 bg-black/20 border-r border-white/10 overflow-hidden transition-all duration-300 ease-in-out`}
+      >
         <div className="p-6 space-y-6">
           <div className="flex items-center space-x-2">
             <Input
               type="text"
-              placeholder={session.status === "authenticated" ? "New note title" : "Log in to add note"}
+              placeholder={
+                session.status === "authenticated"
+                  ? "New note title"
+                  : "Log in to add note"
+              }
               disabled={session.status !== "authenticated"}
               value={newNoteTitle}
               onChange={(e) => setNewNoteTitle(e.target.value)}
@@ -209,14 +246,15 @@ export default function Notes() {
               >
                 <FilePlus2 className="h-5 w-5" />
               </Button>
-            ) : (<Button
-              onClick={() => signIn('google')}
-              size="icon"
-              className="bg-sky-600 hover:bg-sky-700 text-white rounded-sm shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <LogIn className="h-5 w-5" />
-            </Button>)}
-
+            ) : (
+              <Button
+                onClick={() => signIn("google")}
+                size="icon"
+                className="bg-sky-600 hover:bg-sky-700 text-white rounded-sm shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <LogIn className="h-5 w-5" />
+              </Button>
+            )}
           </div>
           <div className="relative">
             <Input
@@ -230,14 +268,21 @@ export default function Notes() {
             <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           </div>
           <ScrollArea className="h-[calc(100vh-200px)] md:h-[calc(100vh-180px)]">
-            <Reorder.Group axis="y" onReorder={handleReorder} values={filteredNotes}>
+            <Reorder.Group
+              axis="y"
+              onReorder={handleReorder}
+              values={filteredNotes}
+            >
               <div className="space-y-2 pr-2">
                 {filteredNotes.map((note) => (
                   <Reorder.Item key={note._id} value={note}>
                     <motion.div
                       layout
-                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeNote?._id === note._id ? "bg-sky-700/40" : "hover:bg-sky-700/20"
-                        }`}
+                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                        activeNote?._id === note._id
+                          ? "bg-sky-700/40"
+                          : "hover:bg-sky-700/20"
+                      }`}
                       onClick={() => {
                         if (!note.isEditing) {
                           setActiveNote(note);
@@ -251,7 +296,8 @@ export default function Notes() {
                         {!note.isEditing ? (
                           <div className="flex items-center group w-full">
                             <span className="truncate text-gray-200 flex-grow">
-                              {note.title}
+                              {note.title.slice(0, 12)}
+                              {note.title.length > 12 ? "..." : ""}
                             </span>
                             <Button
                               variant="ghost"
@@ -320,7 +366,7 @@ export default function Notes() {
 
       {/* Main content */}
       <div className="flex-grow p-4 md:p-8 bg-black/10 overflow-auto">
-        {activeNote && (
+        {(activeNote && (
           <div className="h-full flex flex-col">
             <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-300">
               {activeNote.title}
@@ -334,18 +380,25 @@ export default function Notes() {
               />
             </div>
           </div>
-        ) || (
-            session.status === "authenticated" ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-                <FileText className="h-16 w-16 text-sky-400" />
-                <p className="text-xl text-center">Select a note or create a new one to get started</p>
-              </div>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 cursor-pointer" onClick={() => signIn('google')}>
-                <IconBrandGoogle className="h-16 w-16 text-sky-400" />
-                <p className="text-xl text-center">Sign in using google to get started</p>
-              </div>
-            ))}
+        )) ||
+          (session.status === "authenticated" ? (
+            <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
+              <FileText className="h-16 w-16 text-sky-400" />
+              <p className="text-xl text-center">
+                Select a note or create a new one to get started
+              </p>
+            </div>
+          ) : (
+            <div
+              className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 cursor-pointer"
+              onClick={() => signIn("google")}
+            >
+              <IconBrandGoogle className="h-16 w-16 text-sky-400" />
+              <p className="text-xl text-center">
+                Sign in using google to get started
+              </p>
+            </div>
+          ))}
       </div>
     </div>
   );

@@ -36,10 +36,10 @@ export default function Navbar() {
             {session.data?.user && (
               <div className="flex items-center space-x-2">
                 <Image
-                  src={session.data?.user?.image || "/default-avatar.png"} // default avatar not added
+                  src={session.data?.user?.image || "/default-avatar.png"}
                   alt={`Avatar for ${session.data?.user?.name || "user"}`}
-                  width={40}
-                  height={40}
+                  width={32}
+                  height={32}
                   className="rounded-full"
                 />
                 <Button
@@ -101,7 +101,7 @@ export default function Navbar() {
             {session.data?.user && (
               <div className="flex items-center justify-center space-x-1">
                 <Image
-                  src={session.data?.user?.image || "/default-avatar.png"} // default avatar not added
+                  src={session.data?.user?.image || "/default-avatar.png"}
                   alt={`Avatar for ${session.data?.user?.name || "user"}`}
                   width={16}
                   height={16}
